@@ -1,7 +1,7 @@
 describe('WriteableStream', function() {
   let writeable;
   beforeAll(function() {
-    writeable = require('../src/common/writeable_stream');
+    writeable = require('../src/writeable_stream');
   });
 
   describe('signature', function() {
