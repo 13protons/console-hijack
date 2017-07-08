@@ -1,7 +1,7 @@
 {
-  "name": "telemetry",
+  "name": "streams",
   "version": "1.0.0",
-  "description": "Simplified data telemetry with keyframing",
+  "description": "Like native Nodejs streams, but in the browser",
   "main": "index.js",
   "scripts": {
     "test": "npm run test-client",
@@ -10,25 +10,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alanguir/telemetry.git"
+    "url": "git+https://github.com/alanguir/streams.git"
   },
   "keywords": [
-    "telemetry",
-    "protocol",
+    "streams",
+    "writeable stream",
     "data",
-    "mobile",
+    "readable stream",
     "streaming"
   ],
   "author": "Alan Languirand",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/alanguir/telemetry/issues"
+    "url": "https://github.com/alanguir/streams/issues"
   },
-  "homepage": "https://github.com/alanguir/telemetry#readme",
-  "dependencies": {
-    "express": "^4.15.3",
-    "socket.io": "^2.0.3"
-  },
+  "homepage": "https://github.com/alanguir/streams#readme",
+  "dependencies": {},
   "devDependencies": {
     "buble": "^0.15.2",
     "buble-loader": "^0.4.1",
