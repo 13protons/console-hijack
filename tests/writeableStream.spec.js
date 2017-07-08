@@ -24,10 +24,16 @@ describe('WriteableStream', function() {
       expect(writer.cork).toEqual(jasmine.any(Function));
     });
 
-    it('should expose a uncork method', function() {
+    it('should expose an uncork method', function() {
       expect(writer.uncork).toBeDefined();
       expect(writer.uncork).toEqual(jasmine.any(Function));
     });
+
+    it('should expose an end method', function() {
+      expect(writer.end).toBeDefined();
+      expect(writer.end).toEqual(jasmine.any(Function));
+    });
+
     describe('_writeableState', function() {
       it('should expose a _writableState utility method', function() {
         expect(writer._writableState).toBeDefined();
@@ -143,6 +149,17 @@ describe('WriteableStream', function() {
         expect(tracer.calls.any()).toBe(true);
         done();
       });
+    });
+  });
+
+  describe('end', function() {
+    it('ending the writeable should disable future writes', function() {
+      let tracer = jasmine.createSpy('writeCb', function(){});
+      let writer = writeable({highWaterMark: 42}, tracer);
+      writer.end();
+      expect(function(){
+        writer.write('hi mom');
+      }).toThrow()
     });
   });
 });

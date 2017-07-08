@@ -15,7 +15,7 @@ function WriteableStream(options, writeCallback) {
     // read
     cork: cork,
     uncork: uncork,
-    // end
+    end: end,
     // destroy
     _writableState: state
   }
@@ -41,7 +41,15 @@ function WriteableStream(options, writeCallback) {
     state.corked = false;
   }
 
+  function end() {
+    state.finished = true;
+  }
+
   function write(obj) {
+    if (state.finished) {
+      throw new Error('Stream has ended - writes are no longer allowed!');
+      return;
+    }
     // Data is buffered in Readable streams when the implementation calls stream.push(chunk).If the consumer of the Stream does not call stream.read(), the data will sit in the internal queue until it is consumed.
 
     // Data is buffered in Writable streams when the writable.write(chunk) method is called repeatedly. While the total size of the internal write buffer is below the threshold set by highWaterMark, calls to writable.write() will return true.Once the size of the internal buffer reaches or exceeds the highWaterMark, false will be returned.
@@ -62,7 +70,15 @@ function WriteableStream(options, writeCallback) {
 
     let isCorked = false;
     let hasCapacity = true;
+    let hasEnded = false;
     return {
+      get finished() {
+        return hasEnded;
+      },
+      set finished(val) {
+        // no turning back!
+        hasEnded = true
+      },
       get corked() {
         return isCorked;
       },

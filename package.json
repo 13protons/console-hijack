@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test": "npm run test-client",
-    "test-client": "./node_modules/.bin/karma start karma.conf.js --single-run",
+    "test-client": "./node_modules/.bin/karma start karma.conf.js",
+    "watch": "./node_modules/.bin/karma start karma.conf.js --no-single-run --auto-watch",
     "build": "./node_modules/.bin/webpack"
   },
   "repository": {
