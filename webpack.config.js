@@ -1,7 +1,9 @@
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+
 module.exports = {
-  entry: "./client/src/index.js",
+  entry: './index.js',
   output: {
-    filename: "./public/telemetry.js"
+    filename: './dist/streams.js'
   },
   module: {
     loaders: [{
@@ -12,5 +14,15 @@ module.exports = {
         objectAssign: 'Object.assign'
       }
     }]
-  }
-}
+  },
+  devtool: "#source-map",
+  plugins: [
+    new UglifyJSPlugin({
+      sourceMap: true,
+      mangle: {
+        // Skip mangling these
+        except: ['$super', '$', 'exports', 'require']
+      }
+    })
+  ],
+};

@@ -1,5 +1,3 @@
-
-// if the module has no dependencies, the above pattern can be simplified to
 (function(root, factory) {
   if (typeof module === 'object' && module.exports) {
     // Node. Does not work with strict CommonJS, but
@@ -12,6 +10,6 @@
   }
 }(this, function() {
   return {
-    interfaces: require('./src/module.js'),
+    interfaces: require('./src/module.js')
   };
 }));

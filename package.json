@@ -4,8 +4,8 @@
   "description": "Like native Nodejs streams, but in the browser",
   "main": "index.js",
   "engines": {
-   "node": ">=6 <7",
-   "npm": "~3.10"
+    "node": ">=6 <7",
+    "npm": "~3.10"
   },
   "scripts": {
     "test": "npm run test-client",
@@ -43,6 +43,7 @@
     "karma-jasmine": "^1.1.0",
     "karma-webpack": "^2.0.3",
     "mocha": "^3.4.2",
+    "uglifyjs-webpack-plugin": "^0.4.6",
     "webpack": "^3.0.0"
   }
 }
