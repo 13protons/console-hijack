@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Like native Nodejs streams, but in the browser",
   "main": "index.js",
+  "engines": {
+   "node": ">=6 <7",
+   "npm": "~3.10"
+  },
   "scripts": {
     "test": "npm run test-client",
     "test-client": "./node_modules/.bin/karma start karma.conf.js --single-run",
