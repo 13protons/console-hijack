@@ -1,4 +1,4 @@
-var webpackConfig = require('./webpack.config.js');
+let webpackConfig = require('./webpack.config.js');
 // Karma configuration
 // Generated on Wed Jul 05 2017 23:02:26 GMT-0400 (EDT)
 
@@ -21,8 +21,7 @@ module.exports = function(config) {
 
 
     // list of files to exclude
-    exclude: [
-    ],
+    exclude: [],
 
 
     // preprocess matching files before serving them to the browser
@@ -53,12 +52,12 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
+    autoWatch: false,
 
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Firefox'],
+    browsers: ['Firefox', 'FirefoxDeveloper', 'FirefoxAurora', 'FirefoxNightly'],
 
 
     // Continuous Integration mode
@@ -67,6 +66,6 @@ module.exports = function(config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
-  })
-}
+    concurrency: 1
+  });
+};
