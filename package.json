@@ -1,7 +1,7 @@
 {
-  "name": "streams",
+  "name": "broswer-streams",
   "version": "0.0.1",
-  "description": "Like native Nodejs streams, but in the browser",
+  "description": "Like Nodejs streams, but in the browser",
   "main": "index.js",
   "engines": {
     "node": ">=6 <7",
