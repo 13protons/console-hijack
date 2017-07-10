@@ -16,13 +16,13 @@ module.exports = {
     }]
   },
   devtool: "#source-map",
-  plugins: [
-    new UglifyJSPlugin({
-      sourceMap: true,
-      mangle: {
-        // Skip mangling these
-        except: ['$super', '$', 'exports', 'require']
-      }
-    })
-  ],
+  // plugins: [
+  //   new UglifyJSPlugin({
+  //     sourceMap: true,
+  //     mangle: {
+  //       // Skip mangling these
+  //       except: ['$super', '$', 'exports', 'require']
+  //     }
+  //   })
+  // ],
 };

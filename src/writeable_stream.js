@@ -1,51 +1,136 @@
 // reimplement some features of node steams for the browser
+let log = require('loglevel');
+log.setDefaultLevel(log.levels.SILENT);
 
 module.exports = function(options, cb) {
   return new WriteableStream(options, cb);
 }
 
 function WriteableStream(options, writeCallback) {
+  let callback = writeCallback;
+  if (typeof(options) === 'function') {
+    callback = options;
+  }
+
+  if (typeof(callback) !== 'function') {
+    console.error('must supply write callback');
+    return;
+  }
   // The amount of data potentially buffered depends on the highWaterMark option passed into the streams constructor. For normal streams, the highWaterMark option specifies a total number of bytes.For streams operating in object mode, the highWaterMark specifies a total number of objects.
   let Buffer = [];
+  let events = {};
   let state = new WriteableState(options);
 
   return {
     write: write,
     push: write,
-    // read
     cork: cork,
     uncork: uncork,
     end: end,
-    // destroy
+    on: register,
+    once: registerOnce,
+    _loglevel: setLogLevel,
     _writableState: state
   }
 
+  function setLogLevel(level) {
+    log.setLevel(level, false);
+  }
+
   function flush() {
-    writeCallback(Buffer);
-    if (!state.hasCapacity) {
-      announce('drain');
-      state.hasCapacity = true;
+    log.info('WRITEABLE - flushing buffer');
+    let writeResult;
+    if (Buffer.length === 0) {
+      return;
     }
+    let localBuffer = Buffer;
+
+    try {
+      writeResult = callback(localBuffer);
+    } catch(err) {
+      announce('error', err);
+    }
+
+    if (!state.hasCapacity) {
+      log.info('WRITEABLE - buffer was previously over capacity');
+      next(writeResult, function done(msg) {
+        announce('drain', msg);
+        state.hasCapacity = true;
+      });
+    }
+
+    if (state.corked && state.hasCapacity) {
+      log.info('WRITEABLE - buffer was corked');
+      next(writeResult, function(msg) {
+        console.log
+        announce('drain', msg);
+      });
+    }
+
     Buffer = [];
+    return writeResult;
+
+    function next(result, done) {
+      if (result && typeof(result.then) === 'function') {
+        log.info('WRITEABLE - init callback was a promise');
+        // treat as promise
+        result.then(done).catch(function(err){
+          announce('error', err);
+        })
+      } else {
+        done();
+      }
+    }
   }
 
   function cork() {
+    log.info('WRITEABLE - corking stream');
     state.corked = true;
   }
 
   function uncork() {
+    log.info('WRITEABLE - uncorking stream');
     if (state.corked && state.getBuffer().length > 0) {
       flush();
-      announce('drain');
     }
     state.corked = false;
   }
 
-  function end() {
+  function end(data, cb) {
+    log.info('WRITEABLE - ending stream. No more write pssible');
+    if (typeof(data) === 'function') {
+      cb = data;
+    } else if (data) {
+      write(data);
+    }
+    if (typeof(cb) === 'function') {
+      register('finish', cb);
+    }
     state.finished = true;
+    setTimeout(function(){
+      flush();
+      announce('finish')
+    })
+  }
+
+  function register(eventName, cb) {
+    log.info('WRITEABLE - registering callback for event', eventName);
+    events[eventName] = {
+      once: false,
+      callback: cb
+    }
+  }
+
+  function registerOnce(eventName, cb) {
+    log.info('WRITEABLE - registering one time callback for event', eventName);
+    events[eventName] = {
+      once: true,
+      callback: cb
+    }
   }
 
   function write(obj) {
+    log.info('WRITEABLE - write object to stream', obj);
     if (state.finished) {
       throw new Error('Stream has ended - writes are no longer allowed!');
       return;
@@ -62,6 +147,8 @@ function WriteableStream(options, writeCallback) {
   }
 
   function WriteableState(options) {
+    log.info('WRITEABLE - initializing stream');
+    options = typeof(options) === 'function' ? {} : options;
     let defaults = {
       objectMode: true, // always true. Changes will be ignored
       highWaterMark: 100 // objects to buffer
@@ -109,20 +196,17 @@ function WriteableStream(options, writeCallback) {
       }
     }
   }
-}
 
-function announce(name, data) {
-  console.log('announce: ', name);
-  // let event = new CustomEvent(name, {
-  //   detail: data
-  // });
-  // document.dispatchEvent(event);
+  function announce(name, data) {
+    log.info('WRITEABLE - event triggered', name, data);
+    if (events[name] && typeof(events[name].callback) === 'function') {
+      if (name === 'error') {
+        console.error(data);
+      }
+      events[name].callback(data);
+      if (events[name].once) {
+        delete events[name];
+      }
+    }
+  }
 }
-
-// events:
-//   close
-//   drain
-//   error
-//   finish
-//   pipe
-//   unpipe

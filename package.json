@@ -30,7 +30,9 @@
     "url": "https://github.com/alanguir/streams/issues"
   },
   "homepage": "https://github.com/alanguir/streams#readme",
-  "dependencies": {},
+  "dependencies": {
+    "loglevel": "^1.4.1"
+  },
   "devDependencies": {
     "buble": "^0.15.2",
     "buble-loader": "^0.4.1",
