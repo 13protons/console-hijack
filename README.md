@@ -5,7 +5,9 @@ Implementing the [Nodejs Stream API](https://nodejs.org/api/stream.html) for the
 
 ## Installation
 
-> NOTE: This module is still under development! Look for a v0.1.0 release for a full feature implementation!
+> NOTE: This module is still under development! Use in production at your own risk!
+> All features for writeable streams came with v0.1.0.
+> Targeting v0.2.0 for full readable implementation
 
 ```
 npm install broswer-streams
@@ -13,4 +15,13 @@ npm install broswer-streams
 
 ## Usage
 
-Coming soon
+`browser-streams` is meant to be used in a web browser. Here's a simple example of abstracting the console as a stream, so log messages are all sent at the end of each tick:
+
+```
+var writeable = Stream.writeable({highWaterMark: 20}, function (data){
+  console.info(data.join(' '));
+});
+
+//later
+writeable.write('A message to log soon');
+```
