@@ -28,7 +28,7 @@
         console.log(Date.now(), 'Saving buffered data.', data);
       })
 
-      addToStreamAfterRandomInterval(); // infinite recursion for life of page
+      addToStreamAfterInterval(); // infinite recursion for life of page
 
       setInterval(function(){
         console.info('=======================');
@@ -36,7 +36,7 @@
         setTimeout(writeable.cork);
       }, 5 * 1000) // every 5 seconds;
 
-      function addToStreamAfterRandomInterval() {
+      function addToStreamAfterInterval() {
         var start = random(words.length);
         var end = start + random(words.length - start);
 

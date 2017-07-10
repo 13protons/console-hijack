@@ -82,7 +82,7 @@ describe('WriteableStream', function() {
       expect(writer._writableState.highWaterMark).toEqual(42);
     });
 
-    it('options should be optional', function(){
+    it('options should be optional', function(done){
       let tracer = jasmine.createSpy('writeCb', function() {});
       let writer = writeable(tracer);
       writer.write('hi mom');
@@ -151,18 +151,19 @@ describe('WriteableStream', function() {
         highWaterMark: 2
       }, function(buffer) {
         return new Promise(function(resolve, reject) {
-          console.log('simulating latency in remote write',buffer);
+          console.log('simulating latency in remote write', buffer);
           setTimeout(function(){
-
             resolve('all good');
           }, 150);
         });
       });
 
       writer.on('drain', function(){
-        console.log('drain cb triggered');
+        console.log('drain cb triggered', performance.now());
+
         tracer()
       });
+
       writer.write('trying');
       writer.write('to');
       writer.write('trigger');

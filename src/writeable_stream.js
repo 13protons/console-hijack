@@ -1,5 +1,5 @@
 // reimplement some features of node steams for the browser
-let log = require('loglevel');
+let log = require('loglevel').getLogger('writeable');
 log.setDefaultLevel(log.levels.SILENT);
 
 module.exports = function(options, cb) {
@@ -38,38 +38,46 @@ function WriteableStream(options, writeCallback) {
   }
 
   function flush() {
-    log.info('WRITEABLE - flushing buffer');
-    let writeResult;
-    if (Buffer.length === 0) {
+    if (Buffer.length === 0 || state.isFlushing) {
       return;
     }
-    let localBuffer = Buffer;
+    log.info('WRITEABLE - flushing buffer');
+
+    state.isFlushing = true;
+    let writeResult;
 
     try {
-      writeResult = callback(localBuffer);
+      writeResult = callback(Buffer);
     } catch(err) {
       announce('error', err);
     }
 
     if (!state.hasCapacity) {
       log.info('WRITEABLE - buffer was previously over capacity');
-      next(writeResult, function done(msg) {
-        announce('drain', msg);
-        state.hasCapacity = true;
-      });
-    }
-
-    if (state.corked && state.hasCapacity) {
+      drain();
+    } else if (state.corked) {
       log.info('WRITEABLE - buffer was corked');
-      next(writeResult, function(msg) {
-        console.log
-        announce('drain', msg);
-      });
+      state.corked = false;
+      drain();
+    } else {
+      next(writeResult, function(){
+        Buffer = [];
+        state.isFlushing = false;
+      })
     }
 
-    Buffer = [];
     return writeResult;
 
+    function drain() {
+      next(writeResult, function (msg) {
+        Buffer = [];
+        setTimeout(function(){
+          announce('drain', msg);
+        });
+        state.hasCapacity = true;
+        state.isFlushing = false;
+      });
+    }
     function next(result, done) {
       if (result && typeof(result.then) === 'function') {
         log.info('WRITEABLE - init callback was a promise');
@@ -78,7 +86,7 @@ function WriteableStream(options, writeCallback) {
           announce('error', err);
         })
       } else {
-        done();
+        done(Buffer);
       }
     }
   }
@@ -97,7 +105,7 @@ function WriteableStream(options, writeCallback) {
   }
 
   function end(data, cb) {
-    log.info('WRITEABLE - ending stream. No more write pssible');
+    log.info('WRITEABLE - ending stream. No more writes possible after this one.');
     if (typeof(data) === 'function') {
       cb = data;
     } else if (data) {
@@ -130,7 +138,7 @@ function WriteableStream(options, writeCallback) {
   }
 
   function write(obj) {
-    log.info('WRITEABLE - write object to stream', obj);
+    log.info('WRITEABLE - write object to stream - "', obj, '"');
     if (state.finished) {
       throw new Error('Stream has ended - writes are no longer allowed!');
       return;
@@ -139,10 +147,15 @@ function WriteableStream(options, writeCallback) {
 
     // Data is buffered in Writable streams when the writable.write(chunk) method is called repeatedly. While the total size of the internal write buffer is below the threshold set by highWaterMark, calls to writable.write() will return true.Once the size of the internal buffer reaches or exceeds the highWaterMark, false will be returned.
     Buffer.push(obj);
+
     if (!state.corked) {
       setTimeout(flush)
     }
-    state.hasCapacity = Buffer.length <= state.highWaterMark;
+
+    if (Buffer.length >= state.highWaterMark) {
+      state.hasCapacity = false;
+    }
+
     return state.hasCapacity;
   }
 
