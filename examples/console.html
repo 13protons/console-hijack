@@ -1,54 +1,30 @@
 <html>
   <head>
-    <script type="text/javascript" src="../dist/streams.js"></script>
+    <script type="text/javascript" src="../dist/console-hijack.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
   </head>
 
   <body>
-    <h1>Model the console as a Stream</h1>
-    <h2>Open your console to see the action :)</h2>
-    <p>In this example, the console object has been turned into a writeable stream. The stream's buffer capacity has been set low to illustrate backpressue. One word of a poem is written to the stream at a time, and backpressue triggeres a buffer flush and pauses streaming until the stream is ready to recieve more data. </p>
-
+    <h1>Hijacking Console Methods</h1>
+    <h2>Open your console to see even more action :)</h2>
+    <p>In this example, 5 common console methods (log, info, warn, error, trace), have been intercepted to produce events when called. All methods still call through to the native implementation - they've been 'tapped' or 'hijacked'. Try calling methods like <code>console.warn('oh noes!')</code> from the inspector tools to see it in action.</p>
+    <p>Note that the minimum log level has been set to warn, so log and info will be ignored unless the log level is set lower.</p>
+    <button onclick="console.error(Date.now())">console.error</button>
+    <div id="output"></div>
     <script type="text/javascript">
-      // By the Stream by Paul Laurence Dunbar, 1872 - 1906
-      // http://www.poets.org/poetsorg/poem/stream
-      var i = 0;
+      document.addEventListener('console.log', cb);
+      document.addEventListener('console.info', cb);
+      document.addEventListener('console.warn', cb);
+      document.addEventListener('console.error', cb);
+      document.addEventListener('console.trace', cb);
 
-      var words = "By the stream I dream in calm delight, and watch as in a glass, How the clouds like crowds of snowy-hued and white-robed maidens pass, And the water into ripples breaks and sparkles as it spreads, Like a host of armored knights with silver helmets on their heads. And I deem the stream an emblem fit of human life may go, For I find a mind may sparkle much and yet but shallows show, And a soul may glow with myriad lights and wondrous mysteries, When it only lies a dormant thing and mirrors what it sees.".split(' ');
+      console.hijack.level = console.hijack.WARN
 
-      // writeable callback function performs actual write operations
-      var writeable = Stream.writeable({highWaterMark: 20}, function (data){
-        console.log('====================');
-        console.info(data.join(' '));
-        console.log('====================');
-      });
-      writeable.on('drain', function(){
-        console.log('buffer was drained');
-        write();
-      });
-
-      // Comment out this line to reduce console noise
-      writeable._loglevel('info');
-
-      write();
-
-      function write() {
-        var ok = true;
-
-        do {
-          var data = words[i];
-          if (i === words.length - 1) {
-            // last time!
-            console.log('end stream');
-            writeable.end(data, function(){
-              console.log('It\'s been real.')
-            });
-          } else {
-            // see if we should continue, or wait
-            ok = writeable.write(data);
-          }
-          i++;
-        } while (i < words.length && ok);
+      function cb(e) {
+        let type = e.detail.type;
+        let message = e.detail.messages.join(' ');
+        let inner = type + ': ' + message;
+        $('#output').append($('<p>').html(inner));
       }
     </script>
   </body>

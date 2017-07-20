@@ -1,4 +1,3 @@
-let webpackConfig = require('./webpack.config.js');
 // Karma configuration
 // Generated on Wed Jul 05 2017 23:02:26 GMT-0400 (EDT)
 
@@ -16,7 +15,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'tests/**/*.spec.js'
+      'tests/**/*.spec.js',
     ],
 
 
@@ -27,9 +26,16 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'tests/**/*.spec.js': ['webpack']
+      'tests/**/*.spec.js': ['rollup']
     },
-    webpack: webpackConfig,
+    rollupPreprocessor: {
+      plugins: [
+        require('rollup-plugin-buble')()
+      ],
+      format: 'iife', // Helps prevent naming collisions.
+      moduleName: 'hijack', // Required for 'iife' format.
+      sourceMap: 'inline' // Sensible for testing.
+    },
 
 
     // test results reporter to use
@@ -52,7 +58,7 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
+    autoWatch: true,
 
 
     // start these browsers

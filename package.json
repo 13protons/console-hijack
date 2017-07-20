@@ -1,7 +1,7 @@
 {
-  "name": "broswer-streams",
-  "version": "0.1.1",
-  "description": "Like Nodejs streams, but in the browser",
+  "name": "console-hijack",
+  "version": "0.0.1",
+  "description": "Modify native console object to emit events and set verbosity",
   "main": "index.js",
   "engines": {
     "node": ">=6 <7",
@@ -11,11 +11,11 @@
     "test": "npm run test-client",
     "test-client": "./node_modules/.bin/karma start karma.conf.js",
     "watch": "./node_modules/.bin/karma start karma.conf.js --no-single-run --auto-watch",
-    "build": "./node_modules/.bin/webpack"
+    "build": "./node_modules/.bin/rollup -c"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alanguir/streams.git"
+    "url": "git+https://github.com/alanguir/console-hijack.git"
   },
   "keywords": [
     "streams",
@@ -27,16 +27,13 @@
   "author": "Alan Languirand",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/alanguir/streams/issues"
+    "url": "https://github.com/alanguir/console-hijack/issues"
   },
-  "homepage": "https://github.com/alanguir/streams#readme",
+  "homepage": "https://github.com/alanguir/console-hijack#readme",
   "dependencies": {
     "loglevel": "^1.4.1"
   },
   "devDependencies": {
-    "buble": "^0.15.2",
-    "buble-loader": "^0.4.1",
-    "chai": "^4.0.2",
     "eslint": "^4.1.1",
     "eslint-config-google": "^0.8.0",
     "jasmine": "^2.6.0",
@@ -44,9 +41,8 @@
     "karma": "^1.7.0",
     "karma-firefox-launcher": "^1.0.1",
     "karma-jasmine": "^1.1.0",
-    "karma-webpack": "^2.0.3",
-    "mocha": "^3.4.2",
-    "uglifyjs-webpack-plugin": "^0.4.6",
-    "webpack": "^3.0.0"
+    "rollup": "^0.45.2",
+    "rollup-plugin-buble": "^0.15.0",
+    "rollup-plugin-uglify": "^2.0.1"
   }
 }
