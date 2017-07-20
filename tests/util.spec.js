@@ -1,11 +1,9 @@
 import Util from '../src/util';
 
-
 describe('Util', function(){
   // beforeEach(function(){
   //   Util = new Util();
   // })
-
   describe('signature', function(){
     it('should include a has method', function(){
       expect(Util.has).toBeDefined();
@@ -75,7 +73,9 @@ describe('Util', function(){
 
   describe('verbocity', function(){
     it('should be quiet if level is too low', function(){
+      console.log(Util.level);
       Util.level = Util.TRACE;
+      console.log(Util.level);
       expect(Util.quiet(Util.LOG)).toBeTruthy();
     });
     it('should be active if level is high enough', function(){

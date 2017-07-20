@@ -14,28 +14,13 @@ let eventNames = {
   TRACE: 'console.trace',
 }
 
-
 let logLevel = LOG;
 let isBrowser = true;
 if (typeof window === undefined) {
   isBrowser = false;
 }
 
-let levelSet = {
-  set level(name) {
-    logLevel = levelOrder.indexOf(name) >= 0 ? name : LOG;
-  },
-  get level() {
-    return logLevel;
-  },
-  get LOG(){ return LOG },
-  get INFO(){ return INFO },
-  get WARN(){ return WARN },
-  get ERROR(){ return ERROR },
-  get TRACE(){ return TRACE }
-}
-
-let output = Object.assign({
+let output = {
   has: function(name) {
     return typeof console !== "undefined" && console[name] !== undefined;
   },
@@ -54,8 +39,26 @@ let output = Object.assign({
   },
   active: function(name) {
     return levelOrder.indexOf(name) >= levelOrder.indexOf(logLevel)
-  }
-}, levelSet);
+  },
+  set level(name) {
+      logLevel = levelOrder.indexOf(name) >= 0 ? name : LOG;
+      console.log('set level to', logLevel);
+  },
+  get level() {
+    return logLevel;
+  },
+  get LOG(){ return LOG },
+  get INFO(){ return INFO },
+  get WARN(){ return WARN },
+  get ERROR(){ return ERROR },
+  get TRACE(){ return TRACE }
+}
+
+let levelSet = {};
+[LOG, INFO, WARN, ERROR, TRACE, 'level'].forEach(function(prop){
+  let desc = Object.getOwnPropertyDescriptor(output, prop);
+  Object.defineProperty(levelSet, prop, desc);
+})
 
 export {output as default};
 export {levelSet};
