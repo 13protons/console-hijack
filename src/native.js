@@ -12,12 +12,11 @@ function intercept(methods, targetName) {
     let duplicateCalls = 0;
     let name = targetName + '.' + method;
 
-
     let replacement = function(...args) {
-      native('name', name, 'lastCalledWith', lastCalledWith, 'duplicateCalls', duplicateCalls, 'level', level, 'is', levelOrder.indexOf(method));
+      // native('name', name, 'lastCalledWith', lastCalledWith, 'nowCalledWith', args, 'duplicateCalls', 'isDuplicate?', args == lastCalledWith, duplicateCalls, 'level', level, 'is', levelOrder.indexOf(method));
 
       if (levelOrder.indexOf(method) >= level) {
-        if (args == lastCalledWith) {
+        if (JSON.stringify(args) == JSON.stringify(lastCalledWith)) {
           duplicateCalls++
         } else {
           duplicateCalls = 0;
@@ -42,7 +41,7 @@ function intercept(methods, targetName) {
   });
 
   target.LOG_LEVELS ={}
-  methods.forEach(function(item) {
+  levelOrder.forEach(function(item) {
     target.LOG_LEVELS[item.toUpperCase()] = item;
   })
 
@@ -61,10 +60,6 @@ function intercept(methods, targetName) {
 }
 
 function emit(name, payload) {
-  // let precedence = levelOrder.indexOf(name);
-  // if (precedence === -1 || precedence < levelOrder.indexOf(logLevel)) {
-  //   return
-  // }
   let event = new CustomEvent(name, {
     detail: payload
   });
