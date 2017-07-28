@@ -1,6 +1,6 @@
 {
   "name": "console-hijack",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Modify native console object to emit events and set verbosity",
   "main": "index.js",
   "engines": {
