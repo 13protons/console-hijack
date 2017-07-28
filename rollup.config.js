@@ -1,10 +1,10 @@
 import buble from 'rollup-plugin-buble';
-import uglify from 'rollup-plugin-uglify';
+// import uglify from 'rollup-plugin-uglify';
 
 export default {
-  entry: 'src/module.js',
+  entry: 'src/native.js',
   format: 'iife',
   dest: 'dist/console-hijack.js', // equivalent to --output
-  plugins: [ buble(), uglify() ],
+  plugins: [ buble()/*, uglify()*/ ],
   moduleName: 'consoleHijack'
 };

@@ -18,7 +18,7 @@
       document.addEventListener('console.error', cb);
       document.addEventListener('console.trace', cb);
 
-      console.hijack.level = console.hijack.WARN
+      console.LOG_LEVEL = console.LOG_LEVELS.WARN
 
       function cb(e) {
         let type = e.detail.type;

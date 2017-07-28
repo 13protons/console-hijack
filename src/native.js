@@ -1,30 +1,24 @@
-(function () {
-'use strict';
-
-var methodsToHijack = ['log', 'info', 'warn', 'error', 'trace'];
+let methodsToHijack = ['log', 'info', 'warn', 'error', 'trace'];
 intercept(methodsToHijack, 'console');
 
 function intercept(methods, targetName) {
-  var levelOrder = ['any'].concat(methods);
-  var level = 0;
-  var target = window[targetName];
+  const levelOrder = ['any'].concat(methods);
+  let level = 0;
+  let target = window[targetName];
 
   methods.forEach(function(method) {
-    var native = target[method];
-    var lastCalledWith = null;
-    var duplicateCalls = 0;
-    var name = targetName + '.' + method;
+    let native = target[method];
+    let lastCalledWith = null;
+    let duplicateCalls = 0;
+    let name = targetName + '.' + method;
 
 
-    var replacement = function() {
-      var args = [], len = arguments.length;
-      while ( len-- ) args[ len ] = arguments[ len ];
-
+    let replacement = function(...args) {
       native('name', name, 'lastCalledWith', lastCalledWith, 'duplicateCalls', duplicateCalls, 'level', level, 'is', levelOrder.indexOf(method));
 
       if (levelOrder.indexOf(method) >= level) {
         if (args == lastCalledWith) {
-          duplicateCalls++;
+          duplicateCalls++
         } else {
           duplicateCalls = 0;
         }
@@ -39,24 +33,24 @@ function intercept(methods, targetName) {
           throw new Error('Infinte recursion detected for ', name);
         }
       }
-    };
+    }
     replacement.native = native;
     replacement.restore = function() {
       target[method] = native;
-    };
+    }
     target[method] = replacement;
   });
 
-  target.LOG_LEVELS ={};
+  target.LOG_LEVELS ={}
   methods.forEach(function(item) {
     target.LOG_LEVELS[item.toUpperCase()] = item;
-  });
+  })
 
   Object.defineProperty(target, 'LOG_LEVEL', {
     get: function() { return levelOrder[level]; },
     set: function(newValue) {
-      var toFind = newValue.toString().toLowerCase();
-      var index = levelOrder.indexOf(toFind);
+      let toFind = newValue.toString().toLowerCase();
+      let index = levelOrder.indexOf(toFind);
       if (index > -1) {
         level = index;
       }
@@ -71,10 +65,8 @@ function emit(name, payload) {
   // if (precedence === -1 || precedence < levelOrder.indexOf(logLevel)) {
   //   return
   // }
-  var event = new CustomEvent(name, {
+  let event = new CustomEvent(name, {
     detail: payload
   });
   document.dispatchEvent(event);
 }
-
-}());
