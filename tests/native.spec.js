@@ -13,7 +13,6 @@ describe('native', function() {
       expect(console.LOG_LEVELS.INFO).toBeDefined();
       expect(console.LOG_LEVELS.WARN).toBeDefined();
       expect(console.LOG_LEVELS.ERROR).toBeDefined();
-      expect(console.LOG_LEVELS.TRACE).toBeDefined();
       expect(console.LOG_LEVELS.BLARGH).toBeUndefined();
     });
   });
@@ -138,5 +137,75 @@ describe('native', function() {
       }, 1500)
     })
   });
+
+  describe('hijack', function(){
+    it('should re-hijack a restored method', function(done){
+      let methodName = 'console.log'
+
+      let fn = function(e){
+        expect(e.detail.type).toEqual(methodName);
+        document.removeEventListener(methodName, fn);
+        done();
+      }
+      document.addEventListener(methodName, fn);
+
+      console.log.restore(); // we know it works b/c of prev tests
+      console.log.hijack();
+      console.log('hello world');
+    })
+  });
+
+  describe('restore all', function() {
+    let methods = ['log', 'info', 'warn', 'error'];
+    it('console.restoreAll should stop notifying all listeners when called', function(done){
+      let callbacks = methods.map((methodName)=>{
+        let fn = function(e){
+          document.removeEventListener('console.' + methodName, fn);
+          throw new Error('get outta here');
+          done('nope');
+        }
+        document.addEventListener('console.' + methodName, fn);
+        return fn
+      });
+
+      console.restoreAll();
+      methods.forEach((method)=>{console[method]('hello');});
+
+      setTimeout(function(){
+        methods.forEach((method, i)=>{
+          document.removeEventListener('console.' + method, callbacks[i]);
+        });
+        done();
+      }, 1500)
+    })
+
+    it('console.hijackAll should start notifying all listeners when called', function(done){
+      let wasCalled = {};
+      let callbacks = methods.map((methodName)=>{
+        let fn = function(e){
+          wasCalled[methodName] = true;
+          document.removeEventListener('console.' + methodName, fn);
+          done();
+        }
+        document.addEventListener('console.' + methodName, fn);
+        return fn
+      });
+
+      console.hijackAll();
+      methods.forEach((method)=>{console[method]('hello');});
+
+      let failureTimeout = setTimeout(function(){
+        throw new Error('shouldnt be here')
+        done('nope');
+      }, 1500);
+
+      setTimeout(function(){
+        methods.forEach(function(methodName){
+          expect(wasCalled[methodName]).toEqual(true);
+        });
+        done();
+      }, 500);
+    })
+  })
 
 });

@@ -1,7 +1,7 @@
 # Console-hijack
 [![Build Status](https://travis-ci.org/alanguir/console-hijack.svg?branch=master)](https://travis-ci.org/alanguir/console-hijack)
 
-Intercepting and modifying common console printing methods in the browser. Why? To receive callback events when methods like `console.log` or `console.error` are called, and to mute native console methods (like log) in production.
+Intercept and send events for console.log and friends in the browser. Why? To receive callback events when methods like `console.log` or `console.error` are called, and to mute native console methods (like log) in production.
 
 ## Installation
 
@@ -11,11 +11,11 @@ Intercepting and modifying common console printing methods in the browser. Why? 
 npm install console-hijack
 ```
 
-...Then Include `dist/console-hijack.js` in your project. See examples for more info.
+...Then Include `dist/console-hijack-browser.min.js` in your project. See examples for more info.
 
 ## Usage
 
-Including this script on your page automatically hijacks the following console methods: [LOG, INFO, WARN, ERROR, TRACE];
+Including this script on your page automatically hijacks the following console methods: [LOG, INFO, WARN, ERROR];
 
 To receive a callback for a given method, simply listen to it:
 
@@ -37,12 +37,16 @@ The callback function is invoked with a payload that has the following signature
 
 #### log level
 
-Set the log level to mute everything below that level. For example, setting the log level to WARN will mute LOG and INFO. The default level is LOG
+Log level constants and log level state have been added to the native `console` object. To change levels that print to the console and fire events, set `console.LOG_LEVEL` to a `console.LOG_LEVELS` constant. Setting the log level will mute everything **below** that level. For example, setting the log level to WARN will mute LOG and INFO. The default level is LOG
 
 ```
-console.hijack.level = console.hijack.WARN
+console.LOG_LEVEL = console.LOG_LEVELS.WARN
 ```
+
+The order of log leves is `[LOG, INFO, WARN, ERROR]`, with `ERROR` being the highest level and `LOG` being the lowest level.
 
 #### Stop/Start
 
-The console object can be restored by calling `console.hijack.stop()`. No more events will be fired and the previously intercepted methods will be returned to their original state. Resume hijacking by calling `console.hijack.start()`
+Any console method can be reverted to it's native behavior (no events, does not honor log levels) by calling `console.method.restore()`, for example: `console.log.restore()`.
+
+Restored methods can be re-hijacked by calling their hijack method, for example you will start receiving events for a restored `console.log` by calling `console.log.hijack()`;

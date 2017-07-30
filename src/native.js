@@ -1,4 +1,4 @@
-let methodsToHijack = ['log', 'info', 'warn', 'error', 'trace'];
+let methodsToHijack = ['log', 'info', 'warn', 'error'];
 intercept(methodsToHijack, 'console');
 
 function intercept(methods, targetName) {
@@ -7,6 +7,7 @@ function intercept(methods, targetName) {
   let target = window[targetName];
 
   methods.forEach(function(method) {
+    let isActive = true;
     let native = target[method];
     let lastCalledWith = null;
     let duplicateCalls = 0;
@@ -14,6 +15,10 @@ function intercept(methods, targetName) {
 
     let replacement = function(...args) {
       // native('name', name, 'lastCalledWith', lastCalledWith, 'nowCalledWith', args, 'duplicateCalls', 'isDuplicate?', args == lastCalledWith, duplicateCalls, 'level', level, 'is', levelOrder.indexOf(method));
+      if (!isActive) {
+        native(args);
+        return;
+      }
 
       if (levelOrder.indexOf(method) >= level) {
         if (JSON.stringify(args) == JSON.stringify(lastCalledWith)) {
@@ -35,7 +40,10 @@ function intercept(methods, targetName) {
     }
     replacement.native = native;
     replacement.restore = function() {
-      target[method] = native;
+      isActive = false;
+    }
+    replacement.hijack = function() {
+      isActive = true;
     }
     target[method] = replacement;
   });
@@ -44,6 +52,18 @@ function intercept(methods, targetName) {
   levelOrder.forEach(function(item) {
     target.LOG_LEVELS[item.toUpperCase()] = item;
   })
+
+  target.restoreAll = function() {
+    methods.forEach(function(method) {
+      target[method].restore();
+    })
+  }
+
+  target.hijackAll = function() {
+    methods.forEach(function(method) {
+      target[method].hijack();
+    })
+  }
 
   Object.defineProperty(target, 'LOG_LEVEL', {
     get: function() { return levelOrder[level]; },
