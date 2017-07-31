@@ -1,4 +1,4 @@
-import '../src/native.js';
+import '../src/hijack.js';
 
 describe('native', function() {
   beforeEach(function(){
